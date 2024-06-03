@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Performance{% endblock %}
+
+{% block content %}
+
+{% if graph is not none %}
+<img src="data:image/png;base64, {{ graph | safe}}"> 
+{% endif %}
+
+<form action="{% url 'performance' %}" method="post" novalidate>
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <button type="submit" name="action" value="Show_chart"  class="submit">Show chart</button>
+    <button type="submit" name="action" value="summary"  class="submit2">Summary</button>
+</form>
+
+{% if stats is not defined %}
+<h3><b>Price data</b></h3>
+<hr>
+<ul>
+    <li><b>count :</b> {{stats.count}}</li>
+    <li><b>Mean :</b> {{stats.mean}}</li>
+    <li><b>Median :</b> {{stats.median}}</li>
+    <li><b>Min :</b> {{stats.min}}</li>
+    <li><b>Max :</b> {{stats.max}}</li>
+    <li><b>Std Dev :</b> {{stats.std_dev}}</li>
+</ul>
+{% endif %}
+
+{% endblock %}
