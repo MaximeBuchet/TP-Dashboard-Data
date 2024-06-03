@@ -1,9 +1,10 @@
 import csv
+import pandas as pd
 from datetime import datetime
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate,login,logout
-import pandas as pd
+from django.contrib.auth.decorators import login_required
 from .forms import LoginForm, UploadFileForm, AddSalesForm, PerformanceForm
 from .models import Product, Sale
 from .utils import barplot, countplot, lineplot
@@ -25,7 +26,7 @@ def login_view(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('home')
+                return redirect("home")
             else:
                 form.add_error(None, "Invalid username or password")
     else:
@@ -37,7 +38,7 @@ def logout_view(request):
     logout(request)
     return redirect('home')
 
-
+@login_required
 def upload_file_fiew(request):
     file_uploaded = False
 
@@ -60,7 +61,7 @@ def upload_file_fiew(request):
                     price = int(row[2]),
                     quantity = int(row[1]),
                     seller = request.user,
-                    date = row[4],
+                    date = datetime.strptime(row[4],"%d/%m/%Y %H:%M"),
                 )
                 sale.save()
                 # Créer une nouvelle instance du modèle et la sauvegarder
@@ -70,7 +71,7 @@ def upload_file_fiew(request):
 
     return render(request, 'upload_file.html', {'form': form, 'file_uploaded' : file_uploaded})
 
-
+@login_required
 def add_sales_view(request):
     sales_added = False
 
@@ -91,7 +92,7 @@ def add_sales_view(request):
 
     return render(request, 'add_sales.html', {'form': form, 'sales_added' : sales_added})
 
-
+@login_required
 def performance_view(request):
     if request.method == 'POST':
         form = PerformanceForm(request.POST)
